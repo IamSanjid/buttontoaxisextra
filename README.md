@@ -69,7 +69,7 @@ Maps a single button to an axis with a smooth ramp on press and release.
 | Axis on release (%) | Axis value when button is not held |
 | Axis when pressed (%) | Axis value at full press |
 | Ramp Duration (ms) | Total time to travel from release to pressed value |
-| Curve Mode | Shape of the ramp (see [Curve Modes](##curve-modes)) |
+| Curve Mode | Shape of the ramp (see [Curve Modes](#curve-modes)) |
 | Curve Gamma | Exponent for Gamma/Skewed/Exponential modes |
 | Release Curve Gamma | Independent curve exponent for release |
 
@@ -124,7 +124,7 @@ Maps a single button to an axis that ramps through user-defined percentage waypo
 | Axis on release (%) | Axis value when fully released |
 | Axis when pressed (%) | Axis value at 100% |
 | Steps (target%:durationMs) | Comma-separated waypoints e.g. `20:300, 50:500, 80:700, 100:400` |
-| Curve Mode | Shape of the ramp within each segment([Curve Modes](##curve-modes)) |
+| Curve Mode | Shape of the ramp within each segment([Curve Modes](#curve-modes)) |
 | Curve Gamma | Exponent for Gamma/Skewed/Exponential modes |
 | Release Speed Multiplier | How much faster the axis drops on release (e.g. `2.0` = twice as fast) |
 
