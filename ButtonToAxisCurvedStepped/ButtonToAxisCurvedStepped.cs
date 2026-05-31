@@ -163,6 +163,7 @@ namespace HidWizards.UCR.Plugins.Remapper
                                 // Fully released back to start
                                 _segmentProgress = 0.0;
                                 _isRunning = false;
+                                _isPressed = false;
                                 WriteOutput(0, Functions.GetRangeFromPercentage(Range));
                                 break;
                             }
