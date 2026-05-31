@@ -8,7 +8,7 @@ I use this mainly for Forza Horizon 6 RWD Car for better throttle control when u
 .Net Framework Runtime 4.6.2 or above, get from [here](https://dotnet.microsoft.com/en-us/download/dotnet-framework/net462).
 
 ## Installation
-* Download UCR from the [URC Releases](https://github.com/snoothy/ucr/releases) page, extract the contents to your desired directory, you should see `Plugins` folder.
+* Download UCR from the [UCR Releases](https://github.com/snoothy/ucr/releases) page, extract the contents to your desired directory, you should see `Plugins` folder.
 * Download the latest release from the [Releases](https://github.com/iamsanjid/buttontoaxisextra/releases) page.
 * Extract the contents of the zip file to the UCR `Plugins` directory.
 * Follow UCR's Interception installation instructions: https://github.com/snoothy/ucr/wiki/Core_Interception#installation-procedure
