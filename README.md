@@ -8,6 +8,9 @@ I use this mainly for Forza Horizon 6 RWD Car for better throttle control when u
 .Net Framework Runtime 4.6.2 or above, get from [here](https://dotnet.microsoft.com/en-us/download/dotnet-framework/net462).
 
 ## Installation
+
+Demo + Setup for Forza Horizon 6: https://vimeo.com/1197117251?share=copy&fl=sv&fe=ci
+
 * Download UCR from the [UCR Releases](https://github.com/snoothy/ucr/releases) page, extract the contents to your desired directory, you should see `Plugins` folder.
 * Download the latest release from the [Releases](https://github.com/iamsanjid/buttontoaxisextra/releases) page.
 * Extract the contents of the zip file to the UCR `Plugins` directory.
