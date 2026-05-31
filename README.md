@@ -2,6 +2,9 @@
 
 I use this mainly for Forza Horizon 6 RWD Car for better throttle control when using keyboard without traction control settings enabled. But you can use it for any game with any UCR supported controller.
 
+## Requirements
+.Net Framework Runtime 4.6.2 or above, get from [here](https://dotnet.microsoft.com/en-us/download/dotnet-framework/net462).
+
 ## Installation
 * Download UCR from the [URC Releases](https://github.com/snoothy/ucr/releases) page, extract the contents to your desired directory, you should see `Plugins` folder.
 * Download the latest release from the [Releases](https://github.com/iamsanjid/buttontoaxisextra/releases) page.
@@ -19,7 +22,7 @@ Disclaimer: These % doesn't directly map to in-game Throttle percentage. Some no
 
 Let's use `"20:300, 50:500"` and trace what the **curve actually does** within each segment.
 
-Here: 20 is will send 20% <RT>(Or whatever xbox 360 button you have mapped to throttle) to the game, and 300 is the duration of the segment in milliseconds. Which means it will go from 0% to 20% over 300ms following the specified curve, and then from 20% to 50% over 500ms.
+Here: 20% means UCR will send 20% <RT>(Or whatever xbox 360 button you have mapped to throttle) to the game, and 300 is the duration of the segment in milliseconds. Which means it will go from 0% to 20% over 300ms following the specified curve mode, and then from 20% to 50% over 500ms same way.
 
 ---
 
