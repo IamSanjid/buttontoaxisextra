@@ -32,7 +32,11 @@ I use this mainly for Forza Horizon 6 RWD Car for better throttle control when u
 
   <img width="655" height="610" alt="image" src="https://github.com/user-attachments/assets/672cecf1-118e-4889-a1ee-74ad4262baeb" />
 
-  - Just configure it and it should be ready to go, just press the play button and you should also tick/toggle on the `Block` option so that no other application can read the keyboard key.
+  - Just configure it and it should be ready to go, just press the play button and you should also tick/toggle on the `Block` option so that no other application can read the keyboard key. By default block won't be set, check `<path_to>\UCR_v0.9.0\Providers\Core_Interception\Settings.xml` and make sure `BlockingEnabled` value is `true`.
+    ```
+    <Name>BlockingEnabled</Name>
+    <Value>true</Value>
+    ```
 
 ## Plugins
 
