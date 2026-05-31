@@ -24,7 +24,7 @@ I use this mainly for Forza Horizon 6 RWD Car for better throttle control when u
 
   <img width="770" height="483" alt="image" src="https://github.com/user-attachments/assets/ea76f209-97fc-4d11-861e-babdf67cc620" />
 
-  - Under `Axis` section you should see these 3.
+  - Under `Axis` section you should see these 4.
 
   <img width="308" height="264" alt="image" src="https://github.com/user-attachments/assets/32b48050-4112-4722-9fa2-cd0018328d1c" />
 
