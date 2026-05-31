@@ -1,4 +1,6 @@
-# UCR Button To Axis Extra Plugins
+# UCR Curved Axis Plugins
+
+A set of [Universal Control Remapper (UCR)](https://github.com/Snoothy/UCR) plugins that map digital buttons to analog axis outputs with smooth, configurable curves — designed for games where analog precision matters but you only have a keyboard or digital buttons.
 
 I use this mainly for Forza Horizon 6 RWD Car for better throttle control when using keyboard without traction control settings enabled. But you can use it for any game with any UCR supported controller.
 
@@ -12,7 +14,134 @@ I use this mainly for Forza Horizon 6 RWD Car for better throttle control when u
 * Follow UCR's Interception installation instructions: https://github.com/snoothy/ucr/wiki/Core_Interception#installation-procedure
 * Follow UCR's ViGEmu installation instructions: https://github.com/snoothy/ucr/wiki/Core_ViGEm#installation-procedure or follow the [`Core Providers` instructions](https://github.com/snoothy/ucr/wiki/Core-Providers) for your desired controller mapping.
 * Restart your computer.
+* Run `UCR_unblocker.exe`.
 * Open UCR as an administrator.
+  - Press the icon with +.
+
+  <img width="265" height="97" alt="image" src="https://github.com/user-attachments/assets/4e3198de-e14e-482a-bdcb-bc1097ec4705" />
+
+  - Put a profile name, and choose keyboard from input section and your virtual controller from the output section usually ViGEmu Xbox 360 Controller.
+
+  <img width="770" height="483" alt="image" src="https://github.com/user-attachments/assets/ea76f209-97fc-4d11-861e-babdf67cc620" />
+
+  - Under `Axis` section you should see these 3.
+
+  <img width="308" height="264" alt="image" src="https://github.com/user-attachments/assets/32b48050-4112-4722-9fa2-cd0018328d1c" />
+
+  - For example if you choose `Button to Axis (Curved Stepped)` which is usually better for more cases, just put a mapping name and you should see something like this:
+
+  <img width="655" height="610" alt="image" src="https://github.com/user-attachments/assets/672cecf1-118e-4889-a1ee-74ad4262baeb" />
+
+  - Just configure it and it should be ready to go, just press the play button and you should also tick/toggle on the `Block` option so that no other application can read the keyboard key.
+
+## Plugins
+
+### `ButtonToAxisSmooth`
+
+Basic smoothing maps a button to an axis that ramps over-time linearly from 0% to user-provided percentages.
+
+---
+
+### `ButtonToAxisStepped`
+
+Maps a single button to an axis that ramps through user-defined percentage waypoints, but the waypoint percentages are cycled each time the button is pressed.
+
+---
+
+### `ButtonToAxisCurved`
+Maps a single button to an axis with a smooth ramp on press and release.
+
+**Use cases:**
+- Keyboard W → throttle/trigger in racing games
+- Keyboard to flight stick axis for flight sims
+- Any digital input that needs to feel analog
+
+**Features:**
+- Multiple curve modes (see below)
+- Independent press and release curves
+- Configurable ramp duration
+- High-precision delta-time thread (no timer jitter)
+
+**Settings:**
+
+| Setting | Description |
+|---|---|
+| Axis on release (%) | Axis value when button is not held |
+| Axis when pressed (%) | Axis value at full press |
+| Ramp Duration (ms) | Total time to travel from release to pressed value |
+| Curve Mode | Shape of the ramp (see [Curve Modes](##curve-modes)) |
+| Curve Gamma | Exponent for Gamma/Skewed/Exponential modes |
+| Release Curve Gamma | Independent curve exponent for release |
+
+**TwoStage** — splits the ramp into a slow zone and a fast zone:
+
+| Setting | Description | Default |
+|---|---|---|
+| `[TwoStage] Threshold (0-1)` | When the slow zone ends (as a fraction of ramp time). `0.4` = slow for first 40% of time | `0.4` |
+| `[TwoStage] Ease Zone (0-1)` | Where on the axis the slow zone tops out. `0.6` = gentle phase only reaches 60% of target | `0.6` |
+
+Example — `Threshold 0.5`, `EaseZone 0.5`:
+```
+first 50% of time  → covers first 50% of axis range (slow)
+second 50% of time → covers remaining 50% of axis range (fast)
+```
+
+**SkewedS** — asymmetric S-curve that plateaus before reaching the target:
+
+| Setting | Description | Default |
+|---|---|---|
+| `[SkewedS] Plateau Ceiling (%)` | The axis percentage where the curve flattens and crawls to the target. `0.75` = fast ramp to 75%, then very slow crawl to 100% | `0.75` |
+
+Example — `Gamma 0.4`, `PlateauCeiling 0.75`:
+```
+0% → 75% of target  → fast skewed ramp
+75% → 100% of target → very slow crawl (stays near 75% a long time)
+```
+Ideal for RWD throttle — the car naturally sits at 75% power and only creeps to full throttle.
+
+---
+
+### `ButtonToAxisCurvedStepped`
+Maps a single button to an axis that ramps through user-defined percentage waypoints the longer you hold it — each waypoint has its own duration and uses a smooth curve.
+
+**Use cases:**
+- Throttle control with natural grip zones (e.g. 20% → 50% → 80% → 100%)
+- Gradual brake pressure in racing games
+- Thrust control in flight/space sims
+- Any input where you want deliberate, staged power delivery
+
+**Features:**
+- Fully configurable step waypoints (target % and duration per step)
+- Smooth curve applied within each segment
+- Release mirrors the curve back down at a configurable speed multiplier
+- Natural "notch" feel at each waypoint boundary
+- High-precision delta-time thread
+
+**Settings:**
+
+| Setting | Description |
+|---|---|
+| Axis on release (%) | Axis value when fully released |
+| Axis when pressed (%) | Axis value at 100% |
+| Steps (target%:durationMs) | Comma-separated waypoints e.g. `20:300, 50:500, 80:700, 100:400` |
+| Curve Mode | Shape of the ramp within each segment([Curve Modes](##curve-modes)) |
+| Curve Gamma | Exponent for Gamma/Skewed/Exponential modes |
+| Release Speed Multiplier | How much faster the axis drops on release (e.g. `2.0` = twice as fast) |
+
+---
+
+## Curve Modes
+
+| Mode | Shape | Feel | Best For |
+|---|---|---|---|
+| **Smoothstep** | Slow → Fast → Slow | Natural S-curve, eases in and out | General purpose, throttle control |
+| **Smootherstep** | Very Slow → Fast → Very Slow | More pronounced S-curve | High-power cars, precise braking |
+| **Gamma < 1.0** | Fast → Slow | Rushes to target, crawls at end | Quick response inputs |
+| **Gamma > 1.0** | Slow → Fast | Builds up then lunges | Late-hit feel, turbo spool |
+| **Sine** | Gentle S | Organic, slightly faster initial response than Smoothstep | Flight sims, natural feel |
+| **Skewed S** | Slow → Fast → Long plateau | Spends most time in the middle range | RWD grip cars, throttle limiting |
+| **TwoStage** | Slow ramp → Fast ramp | Two distinct speeds, configurable split point | Precise low-end control with fast top-end |
+| **Exponential** | Very Slow → Very Fast | Dramatic late surge | Dramatic power delivery |
 
 ## How it works
 
