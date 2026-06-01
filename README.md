@@ -9,7 +9,9 @@ I use this mainly for Forza Horizon 6 RWD Car for better throttle control when u
 
 ## Installation
 
-Demo + Setup for Forza Horizon 6: https://vimeo.com/1197117251?share=copy&fl=sv&fe=ci
+Demo + Setup for Forza Horizon 6: https://www.youtube.com/watch?v=HWwEUZejBQI
+
+BTW after changin any settings of the plugin, you must deactivate and re-activate it to apply those changes.
 
 * Download UCR from the [UCR Releases](https://github.com/snoothy/ucr/releases) page, extract the contents to your desired directory, you should see `Plugins` folder.
 * Download the latest release from the [Releases](https://github.com/iamsanjid/buttontoaxisextra/releases) page.

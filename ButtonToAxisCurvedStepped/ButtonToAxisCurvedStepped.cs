@@ -201,18 +201,11 @@ namespace HidWizards.UCR.Plugins.Remapper
 
         }
 
-        bool lastIsPressed = false;
         public override void Update(params short[] values)
         {
             lock (_lock)
             {
                 _isPressed = values[0] != 0;
-
-                if (lastIsPressed != _isPressed)
-                {
-                    Logger.Info("IsPressed changed: " + _isPressed);
-                    lastIsPressed = _isPressed;
-                }
 
                 if (!_isRunning && _isPressed)
                 {
@@ -263,7 +256,7 @@ namespace HidWizards.UCR.Plugins.Remapper
             where TRelease : struct, IReleaseHandler
         {
             Stopwatch sw = Stopwatch.StartNew();
-            Thread.Sleep(1);
+
             long lastTicks = sw.ElapsedTicks;
             var axisDelta = RangePressed - Range;
 
@@ -370,7 +363,6 @@ namespace HidWizards.UCR.Plugins.Remapper
                 _segmentProgress = 0.0;
                 _isReleasing = false;
                 _isRunning = false;
-                _isPressed = false;
 
                 WriteOutput(0, Functions.GetRangeFromPercentage(Range));
                 return false;
@@ -413,7 +405,6 @@ namespace HidWizards.UCR.Plugins.Remapper
                     _currentReleaseSegment = 0;
                     _isReleasing = false;
                     _isRunning = false;
-                    _isPressed = false;
 
                     WriteOutput(0, Functions.GetRangeFromPercentage(Range));
                     return false;
@@ -550,6 +541,9 @@ namespace HidWizards.UCR.Plugins.Remapper
 
         private void MatchPercentageToSegments(double currentPercentage)
         {
+            // Force floating-point precision anomalies into bounds
+            currentPercentage = Math.Max(0.0, Math.Min(currentPercentage, 100.0));
+
             // This finds where the trigger % belongs in our steps so we can seamlessly resume
             _currentSegment = 0;
             _segmentProgress = 0.0;
@@ -589,6 +583,9 @@ namespace HidWizards.UCR.Plugins.Remapper
 
         private void MatchPercentageToReleaseSegments(double currentPercentage)
         {
+            // Force floating-point precision anomalies into bounds
+            currentPercentage = Math.Max(0.0, Math.Min(currentPercentage, 100.0));
+
             _currentReleaseSegment = 0;
             _segmentProgress = 0.0;
 
