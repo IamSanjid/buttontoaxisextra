@@ -36,7 +36,7 @@ Demo + Setup for Forza Horizon 6: https://vimeo.com/1197117251?share=copy&fl=sv&
   <img width="655" height="610" alt="image" src="https://github.com/user-attachments/assets/672cecf1-118e-4889-a1ee-74ad4262baeb" />
 
   - Just configure it and it should be ready to go, just press the play button and you should also tick/toggle on the `Block` option so that no other application can read the keyboard key. By default block won't be set, check `<path_to>\UCR_v0.9.0\Providers\Core_Interception\Settings.xml` and make sure `BlockingEnabled` value is `true`.
-    ```
+    ```xml
     <Name>BlockingEnabled</Name>
     <Value>true</Value>
     ```
@@ -44,13 +44,11 @@ Demo + Setup for Forza Horizon 6: https://vimeo.com/1197117251?share=copy&fl=sv&
 ## Plugins
 
 ### `ButtonToAxisSmooth`
-
 Basic smoothing maps a button to an axis that ramps over-time linearly from 0% to user-provided percentages.
 
 ---
 
 ### `ButtonToAxisStepped`
-
 Maps a single button to an axis that ramps through user-defined percentage waypoints, but the waypoint percentages are cycled each time the button is pressed.
 
 ---
@@ -88,7 +86,7 @@ Maps a single button to an axis with a smooth ramp on press and release.
 | `[TwoStage] Ease Zone (0-1)` | Where on the axis the slow zone tops out. `0.6` = gentle phase only reaches 60% of target | `0.6` |
 
 Example — `Threshold 0.5`, `EaseZone 0.5`:
-```
+```text
 first 50% of time  → covers first 50% of axis range (slow)
 second 50% of time → covers remaining 50% of axis range (fast)
 ```
@@ -96,51 +94,64 @@ second 50% of time → covers remaining 50% of axis range (fast)
 **SkewedS** — asymmetric S-curve that plateaus before reaching the target:
 
 | Setting | Description | Default |
-|---|---|---|
+| --- | --- | --- |
 | `[SkewedS] Plateau Ceiling (%)` | The axis percentage where the curve flattens and crawls to the target. `0.75` = fast ramp to 75%, then very slow crawl to 100% | `0.75` |
 
 Example — `Gamma 0.4`, `PlateauCeiling 0.75`:
-```
+
+```text
 0% → 75% of target  → fast skewed ramp
 75% → 100% of target → very slow crawl (stays near 75% a long time)
 ```
+
 Ideal for RWD throttle — the car naturally sits at 75% power and only creeps to full throttle.
 
 ---
 
 ### `ButtonToAxisCurvedStepped`
-Maps a single button to an axis that ramps through user-defined percentage waypoints the longer you hold it — each waypoint has its own duration and uses a smooth curve.
+
+Maps a single button to an axis that ramps through user-defined percentage waypoints the longer you hold it. When released, it can perfectly rewind, reverse your custom steps, or use an entirely separate set of release waypoints.
 
 **Use cases:**
-- Throttle control with natural grip zones (e.g. 20% → 50% → 80% → 100%)
-- Gradual brake pressure in racing games
-- Thrust control in flight/space sims
-- Any input where you want deliberate, staged power delivery
+
+* Throttle control with natural grip zones (e.g., 20% → 50% → 80% → 100%)
+* Gradual brake pressure in racing games
+* Thrust control in flight/space sims
+* Any input where you want deliberate, staged power delivery
 
 **Features:**
-- Fully configurable step waypoints (target % and duration per step)
-- Smooth curve applied within each segment
-- Release mirrors the curve back down at a configurable speed multiplier
-- Natural "notch" feel at each waypoint boundary
-- High-precision delta-time thread
+
+* Fully configurable step waypoints (target % and duration per step)
+* Independent release steps for precise deceleration control
+* Dedicated curve shapes for both press and release phases
+* Pre-computed LookUp Tables (LUTs) for zero-overhead, jitter-free performance
+* High-precision delta-time worker thread
 
 **Settings:**
 
 | Setting | Description |
-|---|---|
-| Axis on release (%) | Axis value when fully released |
-| Axis when pressed (%) | Axis value at 100% |
-| Steps (target%:durationMs) | Comma-separated waypoints e.g. `20:300, 50:500, 80:700, 100:400` |
-| Curve Mode | Shape of the ramp within each segment([Curve Modes](#curve-modes)) |
-| Curve Gamma | Exponent for Gamma/Skewed/Exponential modes |
-| Release Speed Multiplier | How much faster the axis drops on release (e.g. `2.0` = twice as fast) |
+| --- | --- |
+| Axis on release (%) | Axis value when fully released (usually -100 or 0) |
+| Axis when pressed (%) | Axis value at 100% (usually 100) |
+| Trigger Steps | Comma-separated waypoints e.g., `20:300, 50:300, 80:1000` (`target%:durationMs`) |
+| Curve Mode | Shape of the ramp within each trigger segment (see [Curve Modes](#curve-modes)) |
+| Curve Flip | Inverts the shape of the trigger curve |
+| Curve Gamma | Exponent for Gamma/Skewed/Exponential modes on trigger |
+| Release Steps | Custom waypoints for when you let go of the button e.g., `80:300, 60:1000, 0:200` |
+| Simple Rewind | Ignores release steps entirely. Simply reverses time back to 0% smoothly. |
+| Reverse Trigger Steps | Ignores release steps. Plays your `Trigger Steps` sequence backwards. |
+| Release Curve Mode | Shape of the ramp within each release segment |
+| Release Curve Flip | Inverts the shape of the release curve |
+| Release Speed Multiplier | Globally speeds up or slows down the release phase (e.g., `2.0` = twice as fast) |
+
+*(Note: TwoStage parameters are also available independently for both Press and Release phases).*
 
 ---
 
 ## Curve Modes
 
 | Mode | Shape | Feel | Best For |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | **Smoothstep** | Slow → Fast → Slow | Natural S-curve, eases in and out | General purpose, throttle control |
 | **Smootherstep** | Very Slow → Fast → Very Slow | More pronounced S-curve | High-power cars, precise braking |
 | **Gamma < 1.0** | Fast → Slow | Rushes to target, crawls at end | Quick response inputs |
@@ -150,109 +161,60 @@ Maps a single button to an axis that ramps through user-defined percentage waypo
 | **TwoStage** | Slow ramp → Fast ramp | Two distinct speeds, configurable split point | Precise low-end control with fast top-end |
 | **Exponential** | Very Slow → Very Fast | Dramatic late surge | Dramatic power delivery |
 
-## How it works
+---
 
-**Claude's explanantion on how the ButtonToAxisCurvedStepped plugin works** in-terms of Forza Horizon 6.
+## How the Step Logic Works
 
-Disclaimer: These % doesn't directly map to in-game Throttle percentage. Some noticable mappings: 20% = ~7.13% in-game, 50% = ~43.7% in-game, 60% = ~60% in-game
+Disclaimer: These percentages don't directly map to in-game Throttle percentage. Some noticeable mappings in Forza: 20% = ~7.13% in-game, 50% = ~43.7% in-game, 60% = ~60% in-game.
+
+### Pressing the Button (Trigger Steps)
 
 Let's use `"20:300, 50:500"` and trace what the **curve actually does** within each segment.
 
-Here: 20% means UCR will send 20% <RT>(Or whatever xbox 360 button you have mapped to throttle) to the game, and 300 is the duration of the segment in milliseconds. Which means it will go from 0% to 20% over 300ms following the specified curve mode, and then from 20% to 50% over 500ms same way.
+Here: `20%` means UCR will send 20% of your axis to the game, and `300` is the duration of the segment in milliseconds. It will go from 0% to 20% over 300ms following the specified curve mode, and then from 20% to 50% over 500ms.
 
----
+**Smoothstep Example `t*t*(3-2*t)`** (Slow start, fast middle, slow end within each segment):
 
-### Without any curve (linear, for reference)
-```
+```text
 segment 0: 0% → 20% over 300ms
-  t=0.0 → 0%
-  t=0.5 → 10%   (exactly halfway)
-  t=1.0 → 20%
+  t=0.0  → 0%
+  t=0.25 → 3.2%   (slow start)
+  t=0.50 → 10%    (fastest here)
+  t=0.75 → 16.8%  (slowing down)
+  t=1.0  → 20%    (slow arrival)
 
 segment 1: 20% → 50% over 500ms
-  t=0.0 → 20%
-  t=0.5 → 35%   (exactly halfway)
-  t=1.0 → 50%
+  t=0.0  → 20%
+  t=0.25 → 24.8%  (slow start again)
+  t=0.50 → 35%
+  t=0.75 → 45.2%
+  t=1.0  → 50%
 ```
+
+**The Key Insight:** The curve **resets at every segment boundary**. This creates a natural "notch" effect at each waypoint. It eases out of the previous step and eases into the next one, which is perfect for throttle control — you naturally feel where each step is without any haptic feedback.
+
+### Releasing the Button (Release Steps Explained)
+
+If you don't use `Simple Rewind` or `Reverse Trigger Steps`, you can define a custom path down to 0% when you let go of the key.
+
+Let's look at this release step sequence: `80:100, 60:500, 50:200, 20:150, 0:50`
+
+The logic works exactly like the trigger steps, but downwards. The duration component (`:500`) represents the **time it takes to arrive at that target from the preceding state**.
+
+| Target | Duration | What actually happens in-game |
+| --- | --- | --- |
+| **80%** | `100ms` | Drops rapidly from 100% down to 80% in just 100ms. |
+| **60%** | `500ms` | Decelerates from 80% to 60% over a long 500ms. |
+| **50%** | `200ms` | Drops from 60% to 50% taking 200ms. |
+| **20%** | `150ms` | Drops from 50% to 20% taking 150ms. |
+| **0%** | `50ms` | Snaps from 20% to 0% in 50ms (full let-off). |
+
+*Note: If you let go of the button early (e.g., at 75%), the plugin smartly finds the correct segment (between 80% and 60%) and resumes the downward curve seamlessly from there.*
 
 ---
 
-### Smoothstep `t*t*(3-2*t)`
-Slow start, fast middle, slow end — **within each segment**:
-```
-segment 0: 0% → 20% over 300ms
-  t=0.0  → curved=0.00 → 0%
-  t=0.25 → curved=0.16 → 3.2%   (slow start)
-  t=0.50 → curved=0.50 → 10%    (fastest here)
-  t=0.75 → curved=0.84 → 16.8%  (slowing down)
-  t=1.0  → curved=1.00 → 20%    (slow arrival)
+## Tips for Sim Racing
 
-segment 1: 20% → 50% over 500ms
-  t=0.0  → curved=0.00 → 20%
-  t=0.25 → curved=0.16 → 24.8%  (slow start again)
-  t=0.50 → curved=0.50 → 35%
-  t=0.75 → curved=0.84 → 45.2%
-  t=1.0  → curved=1.00 → 50%
-```
-Each segment feels like its own smooth S — **eases into and out of every waypoint**.
-
----
-
-### Gamma `t^0.5` (default)
-Fast start, slow end — within each segment:
-```
-segment 0: 0% → 20% over 300ms
-  t=0.0  → curved=0.00 → 0%
-  t=0.25 → curved=0.50 → 10%   (already halfway at 25% time!)
-  t=0.50 → curved=0.71 → 14.1%
-  t=0.75 → curved=0.87 → 17.3%
-  t=1.0  → curved=1.00 → 20%
-```
-Rushes to the step target quickly then crawls to it — **feels urgent**.
-
----
-
-### Gamma `t^2.0`
-Slow start, fast end — within each segment:
-```
-segment 0: 0% → 20% over 300ms
-  t=0.0  → curved=0.00 → 0%
-  t=0.25 → curved=0.06 → 1.2%   (barely moved)
-  t=0.50 → curved=0.25 → 5%
-  t=0.75 → curved=0.56 → 11.2%
-  t=1.0  → curved=1.00 → 20%
-```
-Barely moves then lunges to the target — **feels like a late hit**.
-
----
-
-### Sine
-Similar to Smoothstep but slightly faster initial response:
-```
-segment 0: 0% → 20% over 300ms
-  t=0.0  → curved=0.00 → 0%
-  t=0.25 → curved=0.38 → 7.6%   (faster than smoothstep here)
-  t=0.50 → curved=0.71 → 14.1%
-  t=0.75 → curved=0.92 → 18.4%
-  t=1.0  → curved=1.00 → 20%
-```
-Feels more **organic** — quick initial response but still gentle at the top.
-
----
-
-### The Key Insight
-
-The curve **resets at every segment boundary**. So no matter which curve you pick, each step target gets its own full S-curve or gamma ramp from `t=0` to `t=1`. This means:
-
-```
-Smoothstep with "20:300, 50:500, 80:700, 100:400":
-
-hold → eases into 20%   (slow start in seg 0)
-     → eases out of 20% (slow end of seg 0)
-     → eases into 50%   (slow start of seg 1)  ← feels like a natural "notch"
-     → eases out of 50%
-     → eases into 80%   ← another notch
-     ... and so on
-```
-
-That notch effect at each waypoint is actually **perfect for throttle control** — you naturally feel where each step is without any haptic feedback.
+* Sometimes **`SkewedS`** for Release Curves might work better than **`Linear`** for Release Curves. When driving powerful RWD cars, snapping completely off the throttle can cause lift-off oversteer (spinning out). Setting your `Release Curve Mode` to `SkewedS` allows the throttle to drop heavily at the very beginning (losing engine power so you make the corner), but then artificially *plateaus and smooths out* near the bottom, acting like a natural engine-brake buffer to keep the rear wheels stable.
+* **Release Steps vs. Rewind:** If your goal is just basic smoothing, turn on `Simple Rewind (Ignore Release Steps)`. However, if you are driving a car with massive turbo lag, use custom `Release Steps`. You can set a custom release profile that drops throttle slowly in the mid-range to keep the turbo spooled through corners.
+* **Curve Flip:** If a curve feels completely backward (e.g., it crawls at the beginning but lunges at the end, and you want the opposite), just toggle the `Curve Flip` or `Release Curve Flip` checkbox. It mathematically inverts the easing shape while keeping your durations perfectly intact.
